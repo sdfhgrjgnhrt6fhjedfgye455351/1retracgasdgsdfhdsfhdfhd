@@ -21,7 +21,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Retrac" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:image" content="https://retrac.one/icon.png" />
+    <meta property="og:image" content="../icon.png" />
     <meta property="og:image:width" content="512" />
     <meta property="og:image:height" content="512" />
     <meta property="og:image:alt" content="Retrac logo" />
@@ -29,76 +29,192 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@retracmp" />
     <meta name="twitter:creator" content="@retracmp" />
-    <meta name="twitter:image" content="https://retrac.one/icon.png" />
+    <meta name="twitter:image" content="../icon.png" />
 
-    <link rel="icon" type="image/png" href="/icon.png" />
-    <link rel="apple-touch-icon" href="/icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" type="image/png" href="../icon.png" />
+    <link rel="apple-touch-icon" href="../icon.png" />
+    <link rel="manifest" href="../site.webmanifest" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://cdn.retrac.site" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap"
-      rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Inter:wght@100..900&family=Noto+Sans:wght@100..900&display=swap"
+      rel="stylesheet"
     />
 
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "Organization",
-            "@id": "https://retrac.one/#organization",
-            "name": "Retrac",
-            "url": "https://retrac.one/",
-            "logo": "https://retrac.one/icon.png",
-            "sameAs": [
-              "https://discord.gg/retrac",
-              "https://twitter.com/retracmp",
-              "https://www.tiktok.com/@retracmp",
-              "https://youtube.com/@retracmp"
-            ]
-          },
-          {
-            "@type": "WebSite",
-            "@id": "https://retrac.one/#website",
-            "url": "https://retrac.one/",
-            "name": "Retrac",
-            "publisher": { "@id": "https://retrac.one/#organization" },
-            "inLanguage": "en"
-          },
-          {
-            "@type": "SoftwareApplication",
-            "name": "Retrac Launcher",
-            "url": "https://retrac.one/",
-            "applicationCategory": "GameApplication",
-            "operatingSystem": "Windows",
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
-            },
-            "publisher": { "@id": "https://retrac.one/#organization" },
-            "description": "Relive Prime Chapter 2 Season 4",
-            "keywords": "OG Fortnite, Chapter 2 Season 4, Fortnite 14.40, Fortnite private server, OG Fortnite launcher"
-          }
-        ]
-      }
-    </script>
-    <link rel="modulepreload" href="/assets/app.js" crossorigin>
-    <script src="/patch.js"></script>
-    <script type="module" crossorigin src="/assets/app.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/app.css">
+    <link rel="stylesheet" href="../assets/app.css">
+    <script src="../patch.js"></script>
   </head>
   <body>
     <div
       id="root"
       class="absolute font-display bg-neutral-900 text-neutral-300 w-[100vw] h-[100dvh]"
-    ><!--$--><div class="flex flex-col items-center w-full h-full overflow-x-hidden"><section class="flex flex-col w-full max-w-[45rem] px-6 py-24 gap-6"><div class="flex flex-col gap-2"><a href="/" class="text-neutral-500 text-xs hover:text-neutral-400 transition-colors ease-linear duration-75 w-max">← back to home</a></div><p class="text-neutral-500 text-sm">Loading status…</p></section></div><!--/$--></div>
-    <noscript class="absolute top-1 left-1 text-white z-20">
-      Retrac is a free, community-driven project that lets you relive Fortnite
-      Chapter 2 Season 4. Enable JavaScript to download the launcher.
-    </noscript>
+    >
+      <div class="flex flex-col items-center w-full h-full overflow-x-hidden">
+        <section class="flex flex-col w-full max-w-[45rem] px-6 py-24 gap-6">
+          <div class="flex flex-col gap-2">
+            <a href="../index.html" class="text-neutral-500 text-xs hover:text-neutral-400 transition-colors ease-linear duration-75 w-max">← back to home</a>
+          </div>
+
+          <div id="status-container" class="flex flex-col gap-6">
+            <p id="loading-text" class="text-neutral-500 text-sm">Loading status…</p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var overallMap = {
+          up: { label: "All Systems Operational", dot: "bg-green-400", pill: "bg-green-700/30" },
+          warning: { label: "Partial Degradation", dot: "bg-amber-400", pill: "bg-amber-700/30 border-amber-300/50" },
+          down: { label: "Major Outage", dot: "bg-red-400", pill: "bg-red-700/30 border-red-300/50" }
+        };
+
+        var statusMap = {
+          up: { label: "Up", dot: "bg-green-400", text: "text-green-300/80" },
+          warning: { label: "Warning", dot: "bg-amber-400", text: "text-amber-300/80" },
+          down: { label: "Down", dot: "bg-red-400", text: "text-red-300/80" }
+        };
+
+        var lastData = null;
+        var container = document.getElementById("status-container");
+
+        function escapeHtml(str) {
+          return String(str || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        function renderRows(items) {
+          if (!items || items.length === 0) {
+            return '<p class="text-neutral-500 text-sm p-3 px-4">No data.</p>';
+          }
+          return items.map(function(item) {
+            var st = statusMap[item.status] || statusMap.up;
+            return (
+              '<div class="flex flex-row items-center gap-3 p-3 px-4">' +
+                '<span class="w-2 h-2 rounded-full ' + st.dot + '"></span>' +
+                '<span class="text-neutral-400 text-sm">' + escapeHtml(item.label) + '</span>' +
+                '<span class="text-xs font-semibold ml-auto ' + st.text + '">' + escapeHtml(st.label) + '</span>' +
+              '</div>'
+            );
+          }).join("");
+        }
+
+        function render(data) {
+          if (!data) {
+            container.innerHTML =
+              '<div class="bg-neutral-700/20 rounded-md p-4">' +
+                '<p class="text-neutral-400 text-sm leading-4">Status is currently unavailable</p>' +
+              '</div>';
+            return;
+          }
+
+          var genTime = data.generated_at ? new Date(data.generated_at).getTime() : Date.now();
+          var diffSec = Math.max(0, Math.floor((Date.now() - genTime) / 1000));
+          var ov = overallMap[data.overall] || overallMap.up;
+
+          var html = "";
+
+          if (data.updating) {
+            html +=
+              '<div class="bg-amber-700/20 rounded-md p-4 flex flex-row items-center gap-3">' +
+                '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>' +
+                '<div class="flex flex-col">' +
+                  '<p class="text-amber-200/90 text-sm">' + escapeHtml(data.message || "Currently Updating") + '</p>' +
+                  '<p class="text-amber-300/90 text-xs">' + escapeHtml(data.description || "Retrac is temporarily unavailable while we roll out an update.") + '</p>' +
+                '</div>' +
+              '</div>';
+          }
+
+          html +=
+            '<div class="flex flex-col gap-2">' +
+              '<p class="text-neutral-400 text-md leading-4">Retrac</p>' +
+              '<div class="rounded-md p-4 flex flex-row items-center gap-3 ' + ov.pill + '">' +
+                '<span class="w-2.5 h-2.5 rounded-full ' + ov.dot + '"></span>' +
+                '<span class="text-neutral-200 text-sm leading-4">' + escapeHtml(ov.label) + '</span>' +
+                '<span id="time-ago" class="text-neutral-500 text-xs ml-auto">updated ' + diffSec + 's ago</span>' +
+              '</div>' +
+            '</div>';
+
+          html +=
+            '<div class="flex flex-col gap-2">' +
+              '<p class="text-neutral-400 text-md leading-4">Services</p>' +
+              '<div class="flex flex-col bg-neutral-600/5 rounded-md divide-y divide-neutral-700/30">' +
+                renderRows(data.categories) +
+              '</div>' +
+            '</div>';
+
+          html +=
+            '<div class="flex flex-col gap-2">' +
+              '<p class="text-neutral-400 text-md leading-4">Regions</p>' +
+              '<div class="flex flex-col bg-neutral-600/5 rounded-md divide-y divide-neutral-700/30">' +
+                renderRows(data.regions) +
+              '</div>' +
+            '</div>';
+
+          container.innerHTML = html;
+        }
+
+        var FALLBACK_STATUS = {
+          generated_at: new Date().toISOString(),
+          updating: false,
+          overall: "up",
+          categories: [
+            { id: "matchmaker", label: "Matchmaker", status: "up" },
+            { id: "accounts", label: "Accounts & Login", status: "up" },
+            { id: "launcher", label: "Launcher", status: "up" },
+            { id: "ingame", label: "In-game", status: "up" },
+            { id: "shop", label: "Item Shop", status: "up" },
+            { id: "miscellaneous", label: "Miscellaneous", status: "up" }
+          ],
+          regions: [
+            { id: "EU", label: "Europe", status: "up" },
+            { id: "NAW", label: "North America West", status: "up" },
+            { id: "NAE", label: "North America East", status: "up" },
+            { id: "OCE", label: "Oceania", status: "up" },
+            { id: "ME", label: "Middle East", status: "up" },
+            { id: "AS", label: "Asia", status: "up" },
+            { id: "SA", label: "South Africa", status: "up" },
+            { id: "BR", label: "Brazil", status: "up" }
+          ]
+        };
+
+        function fetchStatus() {
+          fetch("https://retrac.site/api/status")
+            .then(function(res) {
+              if (!res.ok) throw new Error("status " + res.status);
+              return res.json();
+            })
+            .then(function(json) {
+              lastData = json;
+              render(lastData);
+            })
+            .catch(function() {
+              if (!lastData) {
+                lastData = FALLBACK_STATUS;
+                render(lastData);
+              }
+            });
+        }
+
+        fetchStatus();
+        setInterval(fetchStatus, 30000);
+
+        setInterval(function() {
+          if (lastData && lastData.generated_at) {
+            var el = document.getElementById("time-ago");
+            if (el) {
+              var diff = Math.max(0, Math.floor((Date.now() - new Date(lastData.generated_at).getTime()) / 1000));
+              el.textContent = "updated " + diff + "s ago";
+            }
+          }
+        }, 1000);
+      })();
+    </script>
   </body>
 </html>
