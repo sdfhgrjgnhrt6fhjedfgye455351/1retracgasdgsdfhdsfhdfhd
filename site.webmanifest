@@ -1,0 +1,12 @@
+{
+  "name": "Retrac",
+  "short_name": "Retrac",
+  "description": "Relive Prime Chapter 2 Season 4 for free.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "icons": [
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
